@@ -69,7 +69,10 @@
 #define TEMP_0_PIN                             0  // Analog Input (HOTEND0 thermistor)
 #define TEMP_1_PIN                             2  // Analog Input (unused)
 #define TEMP_BED_PIN                           1  // Analog Input (BED thermistor)
-#define TEMP_BOARD_PIN                         5  // Analog Input (OnBoard thermistor beta 3950)
+
+#ifndef TEMP_BOARD_PIN
+  #define TEMP_BOARD_PIN                       5  // Analog Input (OnBoard thermistor beta 3950)
+#endif
 
 // SPI for MAX Thermocouple
 #if !HAS_MEDIA
@@ -94,12 +97,13 @@
 //
 // Misc. Functions
 //
-#define SDSS                                   4
+#define SD_SS_PIN                              4
 #define PS_ON_PIN                             40
 
 //
 // LCD / Controller
 //
+
 #if HAS_WIRED_LCD
 
   #define LCD_PINS_RS                         42
@@ -141,7 +145,7 @@
     #define BTN_EN2                           52
     #define BTN_ENC                           48
     #define BEEPER_PIN                        41
-    #define LCD_SDSS                        SDSS
+    #define LCD_SDSS_PIN               SD_SS_PIN
     #define SD_DETECT_PIN                     14
 
   #elif ENABLED(SPARK_FULL_GRAPHICS)
@@ -161,7 +165,7 @@
     #define BTN_EN1                           52
     #define BTN_EN2                           50
     #define BTN_ENC                           48
-    #define LCD_SDSS                        SDSS
+    #define LCD_SDSS_PIN               SD_SS_PIN
     #define SD_DETECT_PIN                     14
     #define BEEPER_PIN                        41
     #define DOGLCD_A0                         46

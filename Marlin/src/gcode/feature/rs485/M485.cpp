@@ -1,6 +1,6 @@
 /**
  * Marlin 3D Printer Firmware
- * Copyright (c) 2023 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ * Copyright (c) 2024 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
  *
  * Based on Sprinter and grbl.
  * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
@@ -30,7 +30,7 @@
 void write_packet_data() {
 
   Packet packet = rs485Packetizer.getPacket();
-  for(size_t i = packet.startIndex; i <= packet.endIndex; i++) {
+  for (size_t i = packet.startIndex; i <= packet.endIndex; i++) {
     const uint8_t data = rs485Bus[i];
     if (data < 0x10) SERIAL_ECHOPGM_P(PSTR("0"));
     SERIAL_PRINT(data, PrintBase::Hex);
@@ -83,7 +83,10 @@ void GcodeSuite::M485() {
   // Read and ignore any packets that may have come in, before we write.
 
   while (rs485Packetizer.hasPacket()) {
-    SERIAL_ECHOPGM("rs485-unexpected-packet: ");
+    #if M485_PROTOCOL >= 2
+      SERIAL_ECHO_START();
+    #endif
+    SERIAL_ECHO(F("rs485-"), F("unexpected-packet: "));
     write_packet_data();
     rs485Packetizer.clearPacket();
   }
@@ -91,17 +94,32 @@ void GcodeSuite::M485() {
   const PacketWriteResult writeResult = rs485Packetizer.writePacket(rs485Buffer, strlen(parser.string_arg) / 2);
   switch (writeResult) {
     default: rs485_write_failed(writeResult);
-    case PacketWriteResult::OK:;  // Nothing to do
+    case PacketWriteResult::OK: break;  // Nothing to do
   }
 
   //millis_t startTime = millis();
   bool hasPacket = rs485Packetizer.hasPacket();
   //millis_t endTime = millis();
-  //SERIAL_ECHOLNPGM("rs485-time: ", endTime - startTime);
+  //#if M485_PROTOCOL >= 2
+  //  SERIAL_ECHO_START();
+  //#endif
+  //SERIAL_ECHOLN(F("rs485-"), F("time: "), endTime - startTime);
 
-  if (!hasPacket) { SERIAL_ECHOLNPGM("rs485-reply: TIMEOUT"); return; }
+  #if M485_PROTOCOL >= 2
+    SERIAL_ECHO_START();
+  #endif
 
-  SERIAL_ECHOPGM("rs485-reply: ");
+  SERIAL_ECHO(F("rs485-"));
+  if (!hasPacket) {
+    #if M485_PROTOCOL >= 2
+      SERIAL_ECHOLN(F("timeout"));
+    #else
+      SERIAL_ECHOLN(F("reply: TIMEOUT"));
+    #endif
+    return;
+  }
+
+  SERIAL_ECHO(F("reply: "));
   write_packet_data();
   rs485Packetizer.clearPacket();
 }

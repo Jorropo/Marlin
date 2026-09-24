@@ -29,6 +29,13 @@
 #endif
 
 /**
+ * Require pins to be defined as macros with numerical values
+ */
+#ifndef P1_01
+  #error "Your ARM platform pins are not defined as macros, only as enums! Provide pins_arduino.h to define the pins."
+#endif
+
+/**
  * Detect an old pins file by checking for old ADC pins values.
  */
 #define _OLD_TEMP_PIN(P) PIN_EXISTS(P) && _CAT(P,_PIN) <= 7 && !WITHIN(_CAT(P,_PIN), TERN(LPC1768_IS_SKRV1_3, 0, 2), 3)  // Include P0_00 and P0_01 for SKR V1.3 board
@@ -121,7 +128,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #if IS_TX1(BTN_EN2) || IS_RX1(BTN_EN1)
       #error "Serial port pins (1) conflict with Encoder Buttons!"
     #elif ANY_TX(1, SD_SCK_PIN, LCD_PINS_D4, DOGLCD_SCK, LCD_RESET_PIN, LCD_PINS_RS, SHIFT_CLK_PIN) \
-       || ANY_RX(1, LCD_SDSS, LCD_PINS_RS, SD_MISO_PIN, DOGLCD_A0, SD_SS_PIN, LCD_SDSS, DOGLCD_CS, LCD_RESET_PIN, LCD_BACKLIGHT_PIN)
+       || ANY_RX(1, LCD_SDSS_PIN, LCD_PINS_RS, SD_MISO_PIN, DOGLCD_A0, SD_SS_PIN, DOGLCD_CS, LCD_RESET_PIN, LCD_BACKLIGHT_PIN)
       #error "Serial port pins (1) conflict with LCD pins!"
     #endif
   #endif
@@ -150,7 +157,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #error "Serial port pins (2) conflict with other pins!"
   #elif Y_HOME_TO_MIN && IS_TX2(Y_STOP_PIN)
     #error "Serial port pins (2) conflict with Y endstop pin!"
-  #elif USES_Z_MIN_PROBE_PIN && IS_TX2(Z_MIN_PROBE_PIN)
+  #elif USE_Z_MIN_PROBE && IS_TX2(Z_MIN_PROBE_PIN)
     #error "Serial port pins (2) conflict with probe pin!"
   #elif ANY_TX(2, X_ENABLE_PIN, Y_ENABLE_PIN) || ANY_RX(2, X_DIR_PIN, Y_DIR_PIN)
     #error "Serial port pins (2) conflict with X/Y stepper pins!"
@@ -211,8 +218,8 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
       #error "SCL0 overlaps with Encoder Button!"
     #elif IS_SCL0(SD_SS_PIN)
       #error "SCL0 overlaps with SD_SS_PIN!"
-    #elif IS_SCL0(LCD_SDSS)
-      #error "SCL0 overlaps with LCD_SDSS!"
+    #elif IS_SCL0(LCD_SDSS_PIN)
+      #error "SCL0 overlaps with LCD_SDSS_PIN!"
     #endif
     #undef PIN_IS_SDA0
     #undef IS_SCL0
@@ -241,7 +248,7 @@ static_assert(DISABLED(BAUD_RATE_GCODE), "BAUD_RATE_GCODE is not yet supported o
     #define PIN_IS_SCL2(P) (P##_PIN == P0_11)
     #if PIN_IS_SDA2(Y_STOP)
       #error "i2c SDA2 overlaps with Y endstop pin!"
-    #elif USES_Z_MIN_PROBE_PIN && PIN_IS_SDA2(Z_MIN_PROBE)
+    #elif USE_Z_MIN_PROBE && PIN_IS_SDA2(Z_MIN_PROBE)
       #error "i2c SDA2 overlaps with Z probe pin!"
     #elif PIN_IS_SDA2(X_ENABLE) || PIN_IS_SDA2(Y_ENABLE)
       #error "i2c SDA2 overlaps with X/Y ENABLE pin!"

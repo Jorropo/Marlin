@@ -79,7 +79,7 @@ void write_to_lcd(FSTR_P const fmsg) {
   char encoded_message[MAX_CURLY_COMMAND];
   uint8_t message_length = _MIN(strlen_P(pmsg), sizeof(encoded_message));
 
-  LOOP_L_N(i, message_length)
+  for (uint8_t i = 0; i < message_length; ++i)
     encoded_message[i] = pgm_read_byte(&pmsg[i]) | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
@@ -89,7 +89,7 @@ void write_to_lcd(const char * const cmsg) {
   char encoded_message[MAX_CURLY_COMMAND];
   const uint8_t message_length = _MIN(strlen(cmsg), sizeof(encoded_message));
 
-  LOOP_L_N(i, message_length)
+  for (uint8_t i = 0; i < message_length; ++i)
     encoded_message[i] = cmsg[i] | 0x80;
 
   LCD_SERIAL.Print::write(encoded_message, message_length);
@@ -105,7 +105,6 @@ void set_lcd_error(FSTR_P const error, FSTR_P const component/*=nullptr*/) {
   }
   write_to_lcd(F("}"));
 }
-
 
 /**
  * Process an LCD 'C' command.
@@ -129,8 +128,8 @@ void process_lcd_c_command(const char *command) {
   switch (command[0]) {
     case 'C': // Cope with both V1 early rev and later LCDs.
     case 'S':
-      feedrate_percentage = target_val * 10;
-      LIMIT(feedrate_percentage, 10, 999);
+      motion.feedrate_percentage = target_val * 10;
+      LIMIT(motion.feedrate_percentage, SPEED_EDIT_MIN, SPEED_EDIT_MAX);
       break;
 
     case 'T':
