@@ -1935,10 +1935,14 @@
  */
 //#define Z_IDLE_HEIGHT Z_HOME_POS
 
-//#define Z_CLEARANCE_FOR_HOMING  4   // (mm) Minimal Z height before homing (G28) for Z clearance above the bed, clamps, ...
-                                      // You'll need this much clearance above Z_MAX_POS to avoid grinding.
+#define Z_CLEARANCE_FOR_HOMING  Z_MIN_POS  // Disable the pre-home Z raise. G28 targets this as an ABSOLUTE Z before homing
+                                      // X/Y; at boot Marlin assumes Z = Z_MIN_POS, so any higher target commands a blind
+                                      // upward move that, on the coupled dual-nozzle rack, drives the OPPOSITE nozzle into
+                                      // the bed. Setting it to Z_MIN_POS makes do_z_clearance() a guaranteed no-op (target
+                                      // <= current Z, and it never lowers), so Z stays put until it's homed to the MIN
+                                      // endstop and then raised to Z_AFTER_HOMING (0 = level).
 
-#define Z_AFTER_HOMING  31.5        // (mm) Height to move to after homing (if Z was homed)
+#define Z_AFTER_HOMING  0           // (mm) Raise to level (Z0 = center of dual-nozzle travel) after homing. See Z_MIN/MAX_POS.
 //#define XY_AFTER_HOMING { 10, 10 }  // (mm) Move to an XY position after homing (and raising Z)
 
 //#define EVENT_GCODE_AFTER_HOMING "M300 P440 S200"  // Commands to run after G28 (and move to XY_AFTER_HOMING)
@@ -1979,10 +1983,10 @@
 // Travel limits (linear=mm, rotational=°) after homing, corresponding to endstop positions.
 #define X_MIN_POS 0
 #define Y_MIN_POS 0
-#define Z_MIN_POS 0
+#define Z_MIN_POS -31.5   // Bottom endstop. Z0 = level (center of dual-nozzle rack travel); bottom is -31.5, top +31.5.
 #define X_MAX_POS X_BED_SIZE
 #define Y_MAX_POS Y_BED_SIZE
-#define Z_MAX_POS 63
+#define Z_MAX_POS 31.5
 #define I_MIN_POS 0
 #define I_MAX_POS 720
 #define J_MIN_POS 0
