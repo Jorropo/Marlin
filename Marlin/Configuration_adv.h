@@ -1174,9 +1174,9 @@
  * Enable/disable and set parameters with G-code M493 and M494.
  * See ft_types.h for named values used by FTM options.
  */
-//#define FT_MOTION
+#define FT_MOTION
 #if ENABLED(FT_MOTION)
-  //#define FTM_IS_DEFAULT_MOTION               // Use FT Motion as the factory default?
+  #define FTM_IS_DEFAULT_MOTION                 // Use FT Motion as the factory default?
   //#define FT_MOTION_MENU                      // Provide a MarlinUI menu to set M493 and M494 parameters
 
   //#define NO_STANDARD_MOTION                  // Disable the standard motion system entirely to save Flash and RAM
@@ -1244,15 +1244,15 @@
    * Jolt is the rate of change of acceleration, not related to Marlin's "classic jerk."
    * Ramps acceleration gradually so max acceleration is limited by max speed and distance traveled.
    */
-  //#define FTM_CONSTANT_JOLT
+  #define FTM_CONSTANT_JOLT
   #if ENABLED(FTM_CONSTANT_JOLT)
-    #define FTM_DEFAULT_JOLT 250.0f         // (m/s³) Default jolt for constant-jolt trajectory.
+    #define FTM_DEFAULT_JOLT 150.0f         // (m/s³) Default jolt for constant-jolt trajectory.
                                             // Higher values print faster at the cost of increased resonance and extruder stress
   #endif
 
   // Block acceleration profile
   // :[ 'TRAPEZOIDAL', 'POLY5', 'POLY6', 'CONSTANT_JOLT' ]
-  #define FTM_TRAJECTORY_TYPE TRAPEZOIDAL   //   TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
+  #define FTM_TRAJECTORY_TYPE CONSTANT_JOLT //   TRAPEZOIDAL: Continuous Velocity. Max acceleration is respected.
                                             //         POLY5: Like POLY6 with 1.5x but uses less CPU. Requires FTM_POLYS.
                                             //         POLY6: Continuous Acceleration (aka S_CURVE). Requires FTM_POLYS.
                                             // CONSTANT_JOLT: 7-phase S-curve. Requires FTM_CONSTANT_JOLT.
@@ -3194,7 +3194,7 @@
   #if AXIS_IS_TMC_CONFIG(X)
     #define X_CURRENT       800        // (mA) RMS current. Multiply by 1.414 for peak current.
     #define X_CURRENT_HOME  1000      // (mA) RMS current for homing. (Typically lower than *_CURRENT.)
-    #define X_MICROSTEPS     64        // 0..256
+    #define X_MICROSTEPS     16        // 0..256
     #define X_RSENSE          0.11
     #define X_CHAIN_POS      -1        // -1..0: Not chained. 1: MCU MOSI connected. 2: Next in chain, ...
     //#define X_INTERPOLATE  true      // Enable to override 'INTERPOLATE' for the X axis
@@ -3214,7 +3214,7 @@
   #if AXIS_IS_TMC_CONFIG(Y)
     #define Y_CURRENT       1000
     #define Y_CURRENT_HOME  Y_CURRENT
-    #define Y_MICROSTEPS     64
+    #define Y_MICROSTEPS     16
     #define Y_RSENSE          0.11
     #define Y_CHAIN_POS      -1
     //#define Y_INTERPOLATE  true
