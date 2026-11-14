@@ -100,6 +100,8 @@ void TWIBus::echoprefix(uint8_t bytes, FSTR_P const pref, uint8_t adr) {
 void TWIBus::echodata(uint8_t bytes, FSTR_P const pref, uint8_t adr, const uint8_t style/*=0*/) {
   union TwoBytesToInt16 { uint8_t bytes[2]; int16_t integervalue; };
   TwoBytesToInt16 ConversionUnion;
+  const uint8_t nbytes = bytes;
+  uint32_t be_value = 0;
 
   echoprefix(bytes, pref, adr);
 
@@ -129,6 +131,15 @@ void TWIBus::echodata(uint8_t bytes, FSTR_P const pref, uint8_t adr, const uint8
       case 3:
         SERIAL_ECHO(value);
         if (bytes) SERIAL_CHAR(' ');
+        break;
+
+      // Style 4, signed big-endian integer (1-4 bytes), e.g. a 24-bit sensor reading
+      case 4:
+        be_value = (be_value << 8) | uint8_t(value);
+        if (!bytes) {
+          const uint8_t ext = 32 - 8 * _MIN(nbytes, 4);
+          SERIAL_ECHO(int32_t(be_value << ext) >> ext);
+        }
         break;
 
       // Default style (zero), raw serial output
